@@ -11,11 +11,14 @@ import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 INDEX_NAME = "מה הסיכוי שגדוד 9260 יוקפץ"
 MANUAL_SIGNALS_FILE = "data/manual_signals.json"
 BASELINE_CALIBRATION_OFFSET = 0.0
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile"
+DEFAULT_LLM_MAX_ARTICLES = 120
 
 SIGNAL_RAW_AT_75 = {
     # Current observed intensity baseline (March 2026).
@@ -256,6 +259,104 @@ def score_signal(items: List[NewsItem], patterns: List[str]) -> Tuple[float, int
     return raw, hit_articles
 
 
+def score_signal_with_llm(
+    items: List[NewsItem],
+    patterns: List[str],
+    signal_name: str,
+    llm_labels: Dict[str, Set[int]],
+) -> Tuple[float, int]:
+    total_hits = 0
+    hit_articles = 0
+    labeled = llm_labels.get(signal_name, set())
+    for idx, item in enumerate(items):
+        regex_hits = pattern_hits(item.text, patterns)
+        llm_match = idx in labeled
+        if regex_hits or llm_match:
+            hit_articles += 1
+            total_hits += regex_hits
+            # Semantic-only positives still count even when keywords miss the phrasing.
+            if llm_match and regex_hits == 0:
+                total_hits += 2
+
+    raw = hit_articles * 15.0 + total_hits * 3.0
+    return raw, hit_articles
+
+
+def _post_json(url: str, payload: Dict[str, object], headers: Dict[str, str], timeout_sec: int = 45) -> Dict[str, object]:
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+    with urllib.request.urlopen(req, timeout=timeout_sec) as response:
+        text = response.read().decode("utf-8", errors="ignore")
+    return json.loads(text)
+
+
+def llm_classify_signals(items: List[NewsItem]) -> Tuple[Dict[str, Set[int]], Optional[str]]:
+    api_key = os.getenv("GROQ_API_KEY", "").strip()
+    if not api_key:
+        return {}, "GROQ_API_KEY not set"
+
+    model = os.getenv("GROQ_MODEL", DEFAULT_GROQ_MODEL).strip() or DEFAULT_GROQ_MODEL
+    max_articles_env = os.getenv("LLM_MAX_ARTICLES", str(DEFAULT_LLM_MAX_ARTICLES)).strip()
+    try:
+        max_articles = max(10, min(300, int(max_articles_env)))
+    except ValueError:
+        max_articles = DEFAULT_LLM_MAX_ARTICLES
+
+    target_items = items[:max_articles]
+    signal_names = list(SIGNALS.keys())
+    labels: Dict[str, Set[int]] = {name: set() for name in signal_names}
+
+    batch_size = 12
+    for start in range(0, len(target_items), batch_size):
+        chunk = target_items[start:start + batch_size]
+        batch_payload = [
+            {"id": start + i, "title": it.title, "summary": it.summary}
+            for i, it in enumerate(chunk)
+        ]
+        prompt = (
+            "You classify security news for artillery call-up signals.\n"
+            "Return ONLY JSON in this exact shape:\n"
+            "{\"results\":[{\"id\":0,\"signals\":{\"fire_from_lebanon\":true}}]}\n"
+            "Use only these signal keys: " + ", ".join(signal_names) + ".\n"
+            "For each article id, return all keys with boolean values.\n"
+            "Be strict: mark true only if the article meaning clearly matches the signal.\n"
+            "Articles JSON:\n" + json.dumps(batch_payload, ensure_ascii=False)
+        )
+
+        payload = {
+            "model": model,
+            "temperature": 0,
+            "response_format": {"type": "json_object"},
+            "messages": [
+                {"role": "system", "content": "Return valid JSON only."},
+                {"role": "user", "content": prompt},
+            ],
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        }
+
+        try:
+            response = _post_json(GROQ_API_URL, payload, headers)
+            content = response["choices"][0]["message"]["content"]
+            parsed = json.loads(content)
+            for row in parsed.get("results", []):
+                rid = row.get("id")
+                if not isinstance(rid, int):
+                    continue
+                signals = row.get("signals", {})
+                if not isinstance(signals, dict):
+                    continue
+                for name in signal_names:
+                    if bool(signals.get(name, False)):
+                        labels[name].add(rid)
+        except Exception as exc:  # noqa: BLE001
+            return {}, f"LLM classification failed: {exc}"
+
+    return labels, None
+
+
 def normalize_signal_score(signal_name: str, raw: float) -> float:
     baseline = SIGNAL_RAW_AT_75.get(signal_name)
     if baseline and baseline > 0:
@@ -264,13 +365,23 @@ def normalize_signal_score(signal_name: str, raw: float) -> float:
     return min(100.0, max(0.0, raw))
 
 
-def compute_index(items: List[NewsItem], assume_wide_campaign: bool = False) -> Dict[str, object]:
+def compute_index(items: List[NewsItem], assume_wide_campaign: bool = False, use_llm: bool = True) -> Dict[str, object]:
     signal_scores: Dict[str, float] = {}
     signal_hits: Dict[str, int] = {}
+    llm_labels: Dict[str, Set[int]] = {}
+    llm_error = None
+    llm_used = False
     weighted = 0.0
 
+    if use_llm:
+        llm_labels, llm_error = llm_classify_signals(items)
+        llm_used = bool(llm_labels)
+
     for name, cfg in SIGNALS.items():
-        raw, h = score_signal(items, cfg["patterns"])
+        if llm_used:
+            raw, h = score_signal_with_llm(items, cfg["patterns"], name, llm_labels)
+        else:
+            raw, h = score_signal(items, cfg["patterns"])
         s = normalize_signal_score(name, raw)
         signal_scores[name] = round(s, 2)
         signal_hits[name] = h
@@ -321,6 +432,9 @@ def compute_index(items: List[NewsItem], assume_wide_campaign: bool = False) -> 
         "assume_wide_campaign": assume_wide_campaign,
         "manual_boost": manual_boost,
         "manual_signals": manual_details,
+        "llm_used": llm_used,
+        "llm_model": (os.getenv("GROQ_MODEL", DEFAULT_GROQ_MODEL) if llm_used else None),
+        "llm_error": llm_error,
         "misc_signals": {
             # Requested by user: random display-only signal, not part of score.
             "shimel_loser": random.randint(51, 100),
@@ -433,7 +547,7 @@ def save_outputs(result: Dict[str, object], items: List[NewsItem], out_dir: str)
             f.write(f"- [{title}]({link}) ({item.source})\n")
 
 
-def run(offline_demo: bool, out_dir: str, assume_wide_campaign: bool) -> int:
+def run(offline_demo: bool, out_dir: str, assume_wide_campaign: bool, use_llm: bool) -> int:
     if offline_demo:
         sample = [
             NewsItem(
@@ -451,7 +565,7 @@ def run(offline_demo: bool, out_dir: str, assume_wide_campaign: bool) -> int:
                 published="",
             ),
         ]
-        result = compute_index(sample, assume_wide_campaign=assume_wide_campaign)
+        result = compute_index(sample, assume_wide_campaign=assume_wide_campaign, use_llm=use_llm)
         save_outputs(result, sample, out_dir)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
@@ -464,7 +578,7 @@ def run(offline_demo: bool, out_dir: str, assume_wide_campaign: bool) -> int:
                 print(e, file=sys.stderr)
         return 2
 
-    result = compute_index(items, assume_wide_campaign=assume_wide_campaign)
+    result = compute_index(items, assume_wide_campaign=assume_wide_campaign, use_llm=use_llm)
     save_outputs(result, items, out_dir)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     if errors:
@@ -483,8 +597,13 @@ def main() -> int:
         action="store_true",
         help="Scenario mode: assume broad campaign in Lebanon has started",
     )
+    parser.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="Disable Groq/Llama semantic classification and use keyword mode only",
+    )
     args = parser.parse_args()
-    return run(args.offline_demo, args.out_dir, args.assume_wide_campaign)
+    return run(args.offline_demo, args.out_dir, args.assume_wide_campaign, use_llm=(not args.no_llm))
 
 
 if __name__ == "__main__":

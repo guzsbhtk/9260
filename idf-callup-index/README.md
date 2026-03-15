@@ -30,6 +30,23 @@ cd /Users/oz/Documents/GitHub/codex/idf-callup-index
 python3 daily_callup_index.py --out-dir .
 ```
 
+## ניתוח כתבות עם Groq + Llama 3 (מומלץ)
+
+אפשר לשדרג מזיהוי מילות מפתח לניתוח סמנטי של הכתבות:
+
+```bash
+export GROQ_API_KEY="your_groq_key"
+export GROQ_MODEL="llama-3.3-70b-versatile"
+python3 daily_callup_index.py --out-dir .
+```
+
+אם אין מפתח, הסקריפט חוזר אוטומטית למצב מילות מפתח.
+להכריח מצב מילות מפתח בלבד:
+
+```bash
+python3 daily_callup_index.py --out-dir . --no-llm
+```
+
 להערכת תרחיש שבו כבר החלה מערכה רחבה בלבנון:
 
 ```bash
@@ -61,6 +78,11 @@ python3 daily_callup_index.py --out-dir . --assume-wide-campaign
    - `Actions -> Publish 9260 Call-up Index -> Run workflow`
 4. עדכון אוטומטי:
    - רץ כל יום לפי cron (`05:00 UTC`).
+
+לשימוש ב-Groq בהרצות GitHub Actions:
+1. `Settings -> Secrets and variables -> Actions -> New repository secret`
+2. שם: `GROQ_API_KEY`
+3. ערך: ה-API key שלך מ-Groq
 
 האתר נטען מתוך `idf-callup-index/docs` וקורא נתונים מ-`docs/data/latest_index.json` ו-`docs/data/history.csv`.
 
