@@ -3,6 +3,7 @@ name: Publish 9260 Call-up Index
 on:
   push:
     branches:
+      - main
       - master
     paths:
       - ".github/workflows/idf-9260-pages.yml"
