@@ -1,0 +1,72 @@
+name: Publish 9260 Call-up Index
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/idf-9260-pages.yml"
+      - "idf-callup-index/**"
+  workflow_dispatch:
+    inputs:
+      assume_wide_campaign:
+        description: "Assume wide campaign in Lebanon"
+        required: false
+        default: "false"
+  schedule:
+    - cron: "0 8 * * *"
+    - cron: "0 17 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-9260
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compute index
+        working-directory: idf-callup-index
+        run: |
+          MODE=""
+          if [ "${{ github.event.inputs.assume_wide_campaign }}" = "true" ]; then
+            MODE="--assume-wide-campaign"
+          fi
+          python3 daily_callup_index.py --out-dir . $MODE
+
+      - name: Copy data to docs
+        run: |
+          mkdir -p idf-callup-index/docs/data
+          cp idf-callup-index/data/latest_index.json idf-callup-index/docs/data/latest_index.json
+          cp idf-callup-index/data/history.csv idf-callup-index/docs/data/history.csv
+          LATEST_REPORT=$(ls -1 idf-callup-index/reports/daily_report_*.md | sort | tail -n 1)
+          cp "$LATEST_REPORT" idf-callup-index/docs/data/latest_report.md
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: idf-callup-index/docs
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

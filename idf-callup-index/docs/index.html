@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מה הסיכוי שגדוד 9260 יוקפץ</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <h1>מה הסיכוי שגדוד 9260 יוקפץ</h1>
+      <p id="updated-at">טוען נתונים...</p>
+      <p id="last-update-date">תאריך עדכון אחרון: --</p>
+    </header>
+
+    <section class="score-card">
+      <div class="score-wrap">
+        <div id="score-value" class="score-value">--</div>
+        <div class="score-sub">מתוך 100</div>
+      </div>
+      <div>
+        <p id="band" class="band">--</p>
+        <p id="campaign-mode" class="mode"></p>
+        <p id="meta" class="meta"></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>אותות</h2>
+      <div id="signals" class="signals"></div>
+    </section>
+
+    <section>
+      <h2>מגמה יומית</h2>
+      <canvas id="trend" width="920" height="240"></canvas>
+      <p class="hint">היסטוריית ציונים מתוך data/history.csv</p>
+    </section>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>
