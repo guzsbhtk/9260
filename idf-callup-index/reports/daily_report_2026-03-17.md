@@ -2,19 +2,19 @@
 
 תאריך: 2026-03-17
 
-ציון כללי: **81.5 / 100** (גבוה מאוד)
+ציון כללי: **86.12 / 100** (גבוה מאוד)
 
-ציון בסיס: 55.5
+ציון בסיס: 60.12
 
 תוספת מערכה רחבה: 8.0
 
 תוספת ידנית (ידיעות איכות): 18.0
 
 ## אותות
-- fire_from_lebanon: 73.38 (כתבות תואמות: 28)
-- idf_strikes_in_lebanon: 73.92 (כתבות תואמות: 79)
-- ground_campaign_indicators: 90.0 (כתבות תואמות: 5)
-- reserve_mobilization: 2.86 (כתבות תואמות: 1)
+- fire_from_lebanon: 63.65 (כתבות תואמות: 24)
+- idf_strikes_in_lebanon: 71.13 (כתבות תואמות: 76)
+- ground_campaign_indicators: 100.0 (כתבות תואמות: 6)
+- reserve_mobilization: 37.14 (כתבות תואמות: 13)
 - decision_maker_signals: 36.0 (כתבות תואמות: 2)
 - multi_front_pressure: 72.0 (כתבות תואמות: 4)
 - division_36_specific: 64.0 (כתבות תואמות: 16)
@@ -25,7 +25,7 @@
 - [כאן חדשות: אינדיקציה להסלמה רחבה והיערכות מילואים](https://www.kan.org.il/content/kan-news/defense/1012581/) | בוסט: 18.0 | תוקף עד: 2026-03-22
 
 ## שונים
-- שימל לוזר: 58
+- שימל לוזר: 67
 
 ## דוגמאות ידיעות שנכללו
 - [Israel may call up 450,000 reservists for potential ground invasion in Lebanon - TRT World](https://news.google.com/rss/articles/CBMiWEFVX3lxTE9LeHpvd2tqXzF4MnNUX1F4MDFqdDdKNFI0NXVzNkdyRjdMMUZWekk2SUR5QnllbkRyc1hEbGloaGZPYjBndUI0MGlDcXBHYWowNURhZ3FGQVrSAV5BVV95cUxOUDVrczNtakJaYXAyQ1A2ZWhNLV9JbU9NMmZ4MnZvYmVyaDlrVThMRm50TURiU3ZMT2R6dXIxLWJTZzZ5MzNhNDd2dW9FcUc4WEtNZm9ab1A0UFpVN3d3?oc=5) (google_news_en)
