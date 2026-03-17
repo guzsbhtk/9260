@@ -28,6 +28,12 @@ SIGNAL_RAW_AT_75 = {
     "idf_strikes_in_lebanon": 1452.0,
 }
 
+SIGNAL_ARTICLE_COUNT_AT_100 = {
+    "division_36_specific": 30.0,
+    "brigade_282_specific": 30.0,
+    "battalion_9260_specific": 30.0,
+}
+
 SIGNAL_MAX_AGE_DAYS = {
     "division_36_specific": 21,
     "brigade_282_specific": 21,
@@ -410,7 +416,11 @@ def llm_classify_signals(items: List[NewsItem]) -> Tuple[Dict[str, Set[int]], Op
     return labels, None
 
 
-def normalize_signal_score(signal_name: str, raw: float) -> float:
+def normalize_signal_score(signal_name: str, raw: float, hit_articles: int) -> float:
+    article_baseline = SIGNAL_ARTICLE_COUNT_AT_100.get(signal_name)
+    if article_baseline and article_baseline > 0:
+        return min(100.0, max(0.0, (hit_articles / article_baseline) * 100.0))
+
     baseline = SIGNAL_RAW_AT_75.get(signal_name)
     if baseline and baseline > 0:
         # Baseline raw intensity maps to 75; stronger conditions can still increase toward 100.
@@ -435,7 +445,7 @@ def compute_index(items: List[NewsItem], assume_wide_campaign: bool = False, use
             raw, h = score_signal_with_llm(items, cfg["patterns"], name, llm_labels)
         else:
             raw, h = score_signal(items, cfg["patterns"], name)
-        s = normalize_signal_score(name, raw)
+        s = normalize_signal_score(name, raw, h)
         signal_scores[name] = round(s, 2)
         signal_hits[name] = h
         weighted += s * cfg["weight"]

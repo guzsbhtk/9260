@@ -1,8 +1,8 @@
 {
-  "as_of": "2026-03-17T09:13:24.805212+00:00",
+  "as_of": "2026-03-17T09:15:01.265122+00:00",
   "articles_scanned": 379,
-  "score": 85.57,
-  "base_score": 59.57,
+  "score": 83.24,
+  "base_score": 57.24,
   "wide_campaign_boost": 8.0,
   "band": "גבוה מאוד",
   "signal_scores": {
@@ -12,7 +12,7 @@
     "reserve_mobilization": 18.0,
     "decision_maker_signals": 36.0,
     "multi_front_pressure": 72.0,
-    "division_36_specific": 100.0,
+    "division_36_specific": 53.33,
     "brigade_282_specific": 0.0,
     "battalion_9260_specific": 0.0
   },
@@ -42,6 +42,6 @@
   "llm_model": null,
   "llm_error": "GROQ_API_KEY not set",
   "misc_signals": {
-    "shimel_loser": 66
+    "shimel_loser": 91
   }
 }
