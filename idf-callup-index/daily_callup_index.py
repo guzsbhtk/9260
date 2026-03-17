@@ -29,9 +29,9 @@ SIGNAL_RAW_AT_75 = {
 }
 
 SIGNAL_ARTICLE_COUNT_AT_100 = {
-    "division_36_specific": 30.0,
-    "brigade_282_specific": 30.0,
-    "battalion_9260_specific": 30.0,
+    "division_36_specific": 25.0,
+    "brigade_282_specific": 15.0,
+    "battalion_9260_specific": 1.0,
 }
 
 SIGNAL_MAX_AGE_DAYS = {
