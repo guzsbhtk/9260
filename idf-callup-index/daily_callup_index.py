@@ -11,6 +11,7 @@ import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
+from email.utils import parsedate_to_datetime
 from typing import Dict, List, Optional, Set, Tuple
 
 INDEX_NAME = "מה הסיכוי שגדוד 9260 יוקפץ"
@@ -25,6 +26,12 @@ SIGNAL_RAW_AT_75 = {
     # If raw grows beyond these levels, the score can rise above 75 up to 100.
     "fire_from_lebanon": 555.0,
     "idf_strikes_in_lebanon": 1452.0,
+}
+
+SIGNAL_MAX_AGE_DAYS = {
+    "division_36_specific": 21,
+    "brigade_282_specific": 21,
+    "battalion_9260_specific": 21,
 }
 
 # Public RSS/Atom feeds chosen for robust daily polling.
@@ -264,10 +271,35 @@ def pattern_hits(text: str, patterns: List[str]) -> int:
     return hits
 
 
-def score_signal(items: List[NewsItem], patterns: List[str]) -> Tuple[float, int]:
+def item_age_days(item: NewsItem) -> Optional[int]:
+    if not item.published:
+        return None
+    try:
+        published_dt = parsedate_to_datetime(item.published)
+        if published_dt.tzinfo is None:
+            published_dt = published_dt.replace(tzinfo=dt.timezone.utc)
+        now = dt.datetime.now(dt.timezone.utc)
+        return max(0, int((now - published_dt).total_seconds() // 86400))
+    except (TypeError, ValueError, IndexError, OverflowError):
+        return None
+
+
+def item_is_fresh_for_signal(item: NewsItem, signal_name: str) -> bool:
+    max_age = SIGNAL_MAX_AGE_DAYS.get(signal_name)
+    if not max_age:
+        return True
+    age_days = item_age_days(item)
+    if age_days is None:
+        return False
+    return age_days <= max_age
+
+
+def score_signal(items: List[NewsItem], patterns: List[str], signal_name: str) -> Tuple[float, int]:
     total_hits = 0
     hit_articles = 0
     for item in items:
+        if not item_is_fresh_for_signal(item, signal_name):
+            continue
         hits = pattern_hits(item.text, patterns)
         if hits:
             hit_articles += 1
@@ -288,6 +320,8 @@ def score_signal_with_llm(
     hit_articles = 0
     labeled = llm_labels.get(signal_name, set())
     for idx, item in enumerate(items):
+        if not item_is_fresh_for_signal(item, signal_name):
+            continue
         regex_hits = pattern_hits(item.text, patterns)
         llm_match = idx in labeled
         if regex_hits or llm_match:
@@ -400,7 +434,7 @@ def compute_index(items: List[NewsItem], assume_wide_campaign: bool = False, use
         if llm_used:
             raw, h = score_signal_with_llm(items, cfg["patterns"], name, llm_labels)
         else:
-            raw, h = score_signal(items, cfg["patterns"])
+            raw, h = score_signal(items, cfg["patterns"], name)
         s = normalize_signal_score(name, raw)
         signal_scores[name] = round(s, 2)
         signal_hits[name] = h
