@@ -1,31 +1,31 @@
 {
-  "as_of": "2026-03-15T20:50:21.582086+00:00",
-  "articles_scanned": 252,
-  "score": 69.31,
-  "base_score": 47.31,
-  "wide_campaign_boost": 4.0,
-  "band": "גבוה",
+  "as_of": "2026-03-17T09:05:22.484305+00:00",
+  "articles_scanned": 376,
+  "score": 87.98,
+  "base_score": 61.98,
+  "wide_campaign_boost": 8.0,
+  "band": "גבוה מאוד",
   "signal_scores": {
-    "fire_from_lebanon": 75.0,
-    "idf_strikes_in_lebanon": 75.0,
-    "ground_campaign_indicators": 54.0,
+    "fire_from_lebanon": 54.73,
+    "idf_strikes_in_lebanon": 66.63,
+    "ground_campaign_indicators": 90.0,
     "reserve_mobilization": 18.0,
     "decision_maker_signals": 36.0,
-    "multi_front_pressure": 54.0,
-    "division_36_specific": 0.0,
-    "brigade_282_specific": 0.0
+    "multi_front_pressure": 72.0,
+    "division_36_specific": 100.0,
+    "brigade_282_specific": 100.0
   },
   "signal_hits": {
-    "fire_from_lebanon": 29,
-    "idf_strikes_in_lebanon": 80,
-    "ground_campaign_indicators": 3,
+    "fire_from_lebanon": 21,
+    "idf_strikes_in_lebanon": 71,
+    "ground_campaign_indicators": 5,
     "reserve_mobilization": 1,
     "decision_maker_signals": 2,
-    "multi_front_pressure": 3,
-    "division_36_specific": 0,
-    "brigade_282_specific": 0
+    "multi_front_pressure": 4,
+    "division_36_specific": 29,
+    "brigade_282_specific": 6
   },
-  "wide_campaign_hit_count": 1,
+  "wide_campaign_hit_count": 2,
   "assume_wide_campaign": false,
   "manual_boost": 18.0,
   "manual_signals": [
@@ -36,7 +36,10 @@
       "expires_on": "2026-03-22"
     }
   ],
+  "llm_used": false,
+  "llm_model": null,
+  "llm_error": "GROQ_API_KEY not set",
   "misc_signals": {
-    "shimel_loser": 96
+    "shimel_loser": 82
   }
 }
