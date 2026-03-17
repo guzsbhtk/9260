@@ -34,6 +34,7 @@ FEEDS = {
     "google_news_rocket_fire": "https://news.google.com/rss/search?q=Hezbollah+rockets+north+Israel+Lebanon&hl=en-US&gl=US&ceid=US:en",
     "google_news_division_36": "https://news.google.com/rss/search?q=%D7%90%D7%95%D7%92%D7%93%D7%94+36+%D7%9C%D7%91%D7%A0%D7%95%D7%9F&hl=he&gl=IL&ceid=IL:he",
     "google_news_brigade_282": "https://news.google.com/rss/search?q=%D7%97%D7%98%D7%99%D7%91%D7%94+282+%D7%9C%D7%91%D7%A0%D7%95%D7%9F&hl=he&gl=IL&ceid=IL:he",
+    "google_news_battalion_9260": "https://news.google.com/rss/search?q=%D7%92%D7%93%D7%95%D7%93+9260+%D7%9C%D7%91%D7%A0%D7%95%D7%9F&hl=he&gl=IL&ceid=IL:he",
     "times_of_israel": "https://www.timesofisrael.com/feed/",
     "idf_news": "https://www.idf.il/rss/"
 }
@@ -53,6 +54,15 @@ BRIGADE_282_TERMS = [
     r"חטיבה\s*282",
     r"תותחנים.*282",
     r"אש.*282",
+]
+
+BATTALION_9260_TERMS = [
+    r"\b9260\b",
+    r"\bbattalion 9260\b",
+    r"\b9260 battalion\b",
+    r"גדוד\s*9260",
+    r"תותחנים.*9260",
+    r"סוללה.*9260",
 ]
 
 SIGNALS = {
@@ -131,7 +141,7 @@ SIGNALS = {
         ],
     },
     "division_36_specific": {
-        "weight": 0.07,
+        "weight": 0.05,
         "patterns": DIVISION_36_TERMS + [
             r"northern command.*36",
             r"artillery.*36",
@@ -139,11 +149,18 @@ SIGNALS = {
         ],
     },
     "brigade_282_specific": {
-        "weight": 0.05,
+        "weight": 0.04,
         "patterns": BRIGADE_282_TERMS + [
             r"artillery brigade.*282",
             r"reserve.*282",
             r"מילואים.*282",
+        ],
+    },
+    "battalion_9260_specific": {
+        "weight": 0.03,
+        "patterns": BATTALION_9260_TERMS + [
+            r"מילואים.*9260",
+            r"גדוד.*תותחנים.*9260",
         ],
     },
 }

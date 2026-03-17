@@ -2,9 +2,9 @@
 
 תאריך: 2026-03-17
 
-ציון כללי: **87.98 / 100** (גבוה מאוד)
+ציון כללי: **85.61 / 100** (גבוה מאוד)
 
-ציון בסיס: 61.98
+ציון בסיס: 59.61
 
 תוספת מערכה רחבה: 8.0
 
@@ -17,14 +17,15 @@
 - reserve_mobilization: 18.0 (כתבות תואמות: 1)
 - decision_maker_signals: 36.0 (כתבות תואמות: 2)
 - multi_front_pressure: 72.0 (כתבות תואמות: 4)
-- division_36_specific: 100.0 (כתבות תואמות: 29)
-- brigade_282_specific: 100.0 (כתבות תואמות: 6)
+- division_36_specific: 100.0 (כתבות תואמות: 31)
+- brigade_282_specific: 100.0 (כתבות תואמות: 7)
+- battalion_9260_specific: 21.0 (כתבות תואמות: 1)
 
 ## ידיעות איכות ידניות שנוספו למדד
 - [כאן חדשות: אינדיקציה להסלמה רחבה והיערכות מילואים](https://www.kan.org.il/content/kan-news/defense/1012581/) | בוסט: 18.0 | תוקף עד: 2026-03-22
 
 ## שונים
-- שימל לוזר: 82
+- שימל לוזר: 98
 
 ## דוגמאות ידיעות שנכללו
 - [Israel may call up 450,000 reservists for potential ground invasion in Lebanon - TRT World](https://news.google.com/rss/articles/CBMiWEFVX3lxTE9LeHpvd2tqXzF4MnNUX1F4MDFqdDdKNFI0NXVzNkdyRjdMMUZWekk2SUR5QnllbkRyc1hEbGloaGZPYjBndUI0MGlDcXBHYWowNURhZ3FGQVrSAV5BVV95cUxOUDVrczNtakJaYXAyQ1A2ZWhNLV9JbU9NMmZ4MnZvYmVyaDlrVThMRm50TURiU3ZMT2R6dXIxLWJTZzZ5MzNhNDd2dW9FcUc4WEtNZm9ab1A0UFpVN3d3?oc=5) (google_news_en)

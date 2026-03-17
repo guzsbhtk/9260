@@ -5,8 +5,9 @@ const SIGNAL_LABELS = {
   reserve_mobilization: "גיוס מילואים",
   decision_maker_signals: "איתותי דרג מדיני",
   multi_front_pressure: "לחץ רב-זירתי",
-  division_36_specific: "אינדיקציה ל-36/9260",
-  brigade_282_specific: "אינדיקציה לחטיבה 282",
+  division_36_specific: "אינדיקציות לאוגדה 36",
+  brigade_282_specific: "אינדיקציות לחטיבה 282",
+  battalion_9260_specific: "אינדיקציות לגדוד 9260",
 };
 
 function colorByScore(score) {
